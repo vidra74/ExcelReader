@@ -22,7 +22,6 @@ object FrmExcelReader: TFrmExcelReader
     Height = 41
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 635
     object lblExcelDatoteka: TLabel
       Left = 10
       Top = 8
@@ -60,7 +59,6 @@ object FrmExcelReader: TFrmExcelReader
     Height = 351
     Align = alLeft
     TabOrder = 2
-    ExplicitHeight = 259
     object btnZatvori: TButton
       Left = 10
       Top = 224
@@ -97,9 +95,6 @@ object FrmExcelReader: TFrmExcelReader
     Align = alBottom
     ItemHeight = 13
     TabOrder = 3
-    ExplicitLeft = 126
-    ExplicitTop = 232
-    ExplicitWidth = 121
   end
   object dlgOpenExcel: TOpenDialog
     Filter = 'Excel|*.xls|Novi Excel|*.xlsx'

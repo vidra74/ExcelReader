@@ -31,6 +31,7 @@ type
     procedure posaljiSheetUGrid;
     procedure zatvoriGrid;
     procedure GetFieldInfo;
+    function analizirajExcelDatoteku: Boolean;
   public
     { Public declarations }
   end;
@@ -43,6 +44,24 @@ implementation
 {$R *.dfm}
 
 uses typinfo;
+
+function TFrmExcelReader.analizirajExcelDatoteku: Boolean;
+var
+  I: Integer;
+  bBilanca, bRDG, bNT: Boolean;
+begin
+
+  for I := 0 to cboxExcelSheets.Items.Count do
+  begin
+    if not bBilanca then
+      bBilanca := (Pos('Bilanca', cboxExcelSheets.Items.ValueFromIndex[I]) > -1);
+    if not bRDG then
+      bRDG := (Pos('RDG', cboxExcelSheets.Items.ValueFromIndex[I]) > -1);
+    if not bNT then
+      bNT := (Pos('NT_I', cboxExcelSheets.Items.ValueFromIndex[I]) > -1);
+  end;
+  Result := bBilanca and bRDG and bNT;
+end;
 
 procedure TFrmExcelReader.btnOtvoriExcelClick(Sender: TObject);
 begin
@@ -59,6 +78,14 @@ begin
   try
     adoconectExcel.Open;
     adoconectExcel.GetTableNames(cboxExcelSheets.Items,True);
+
+    if not analizirajExcelDatoteku then
+      MessageDlg('Neispravan Excel izvještaj', mtError, [mbOk], 0)
+    else begin
+      cboxExcelSheets.ItemIndex := 0;
+      btnOtvoriSheetClick(Sender);
+    end;
+
   except
     On E:Exception do
       ShowMessage('adoconnExcel.Open : ' + E.Message);
