@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Grids, DBGrids, ExtCtrls, DB, ADODB;
+  Dialogs, StdCtrls, Grids, DBGrids, ExtCtrls, DB, ADODB, DBClient;
 
 type
   TFrmExcelReader = class(TForm)
@@ -21,12 +21,22 @@ type
     cboxExcelSheets: TComboBox;
     btnOtvoriSheet: TButton;
     ListBox1: TListBox;
+    btnSpremiIzvjestaj: TButton;
+    cdsPregledIzvjestaja: TClientDataSet;
+    cdsPregledIzvjestajaID: TIntegerField;
+    cdsPregledIzvjestajaPATH: TStringField;
+    cdsPregledIzvjestajaOPIS: TStringField;
+    cdsPregledIzvjestajaTICKER: TStringField;
+    cdsPregledIzvjestajaDATUMUNOSA: TDateField;
+    cdsPregledIzvjestajaDATUMIZVJESTAJA: TDateField;
     procedure btnZatvoriClick(Sender: TObject);
     procedure btnOtvoriExcelClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnOtvoriSheetClick(Sender: TObject);
+    procedure btnSpremiIzvjestajClick(Sender: TObject);
   private
     { Private declarations }
+    IzvjestajPath: String;
     function otvoriOdabraniSheet(Sheet: String): Boolean;
     procedure posaljiSheetUGrid;
     procedure zatvoriGrid;
@@ -80,16 +90,16 @@ begin
     adoconectExcel.GetTableNames(cboxExcelSheets.Items,True);
 
     if not analizirajExcelDatoteku then
-      MessageDlg('Neispravan Excel izvještaj', mtError, [mbOk], 0)
-    else begin
+    begin
+      MessageDlg('Neispravan Excel izvještaj', mtError, [mbOk], 0);
+    end else begin
       cboxExcelSheets.ItemIndex := 0;
       btnOtvoriSheetClick(Sender);
     end;
 
   except
     On E:Exception do
-      ShowMessage('adoconnExcel.Open : ' + E.Message);
-
+      MessageDlg('adoconnExcel.Open : ' + E.Message, mtError, [mbOk], 0);
   end;
 end;
 
@@ -101,6 +111,56 @@ begin
     posaljiSheetUGrid
   else
     zatvoriGrid;
+end;
+
+procedure TFrmExcelReader.btnSpremiIzvjestajClick(Sender: TObject);
+var cdsPath: String;
+    nId: Integer;
+begin
+  // ima li veæ izvještaj sa odabranim pathom ?
+
+  cdsPath := ExtractFilePath(Application.ExeName) + 'Izvjestaji.xml';
+  cdsPregledIzvjestaja.FileName := cdsPath;
+
+  nId := -1;
+  try
+    if not FileExists(cdsPath) then
+      cdsPregledIzvjestaja.CreateDataSet
+    else
+      cdsPregledIzvjestaja.Open;
+
+    if cdsPregledIzvjestaja.Locate('PATH', IzvjestajPath, []) = True then begin
+      ShowMessage(IzvjestajPath + ' ima ID ' + cdsPregledIzvjestaja.FieldByName('ID').AsString);
+      Exit;
+    end;
+
+    if cdsPregledIzvjestaja.IsEmpty then
+      nId := 1
+    else begin
+      nId := cdsPregledIzvjestaja.RecordCount + 1;
+    end;
+
+    try
+      cdsPregledIzvjestaja.Insert;
+      cdsPregledIzvjestaja.FieldByName('ID').AsInteger := nId;
+      cdsPregledIzvjestaja.FieldByName('PATH').AsString := IzvjestajPath;
+      cdsPregledIzvjestaja.FieldByName('TICKER').AsString := 'RIVP-R-A';
+      cdsPregledIzvjestaja.FieldByName('DATUMUNOSA').AsDateTime := Date;
+      cdsPregledIzvjestaja.FieldByName('DATUMIZVJESTAJA').AsDateTime := Date;
+      cdsPregledIzvjestaja.FieldByName('OPIS').AsString := ExtractFileName(IzvjestajPath);
+      cdsPregledIzvjestaja.Post;
+    except
+      On E:Exception do
+        ShowMessage('Puknuo insert: ' + E.Message);
+    end;
+
+
+  finally
+    cdsPregledIzvjestaja.Close;
+  end;
+
+
+
 end;
 
 procedure TFrmExcelReader.btnZatvoriClick(Sender: TObject);

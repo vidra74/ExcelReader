@@ -86,6 +86,15 @@ object FrmExcelReader: TFrmExcelReader
       TabOrder = 2
       OnClick = btnOtvoriSheetClick
     end
+    object btnSpremiIzvjestaj: TButton
+      Left = 10
+      Top = 68
+      Width = 100
+      Height = 25
+      Caption = 'Spremi Izvje'#353'taj'
+      TabOrder = 3
+      OnClick = btnSpremiIzvjestajClick
+    end
   end
   object ListBox1: TListBox
     Left = 0
@@ -123,5 +132,32 @@ object FrmExcelReader: TFrmExcelReader
     DataSet = qryExcel
     Left = 520
     Top = 8
+  end
+  object cdsPregledIzvjestaja: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 320
+    Top = 8
+    object cdsPregledIzvjestajaID: TIntegerField
+      FieldName = 'ID'
+    end
+    object cdsPregledIzvjestajaPATH: TStringField
+      FieldName = 'PATH'
+      Size = 100
+    end
+    object cdsPregledIzvjestajaOPIS: TStringField
+      FieldName = 'OPIS'
+      Size = 200
+    end
+    object cdsPregledIzvjestajaTICKER: TStringField
+      FieldName = 'TICKER'
+      Size = 10
+    end
+    object cdsPregledIzvjestajaDATUMUNOSA: TDateField
+      FieldName = 'DATUMUNOSA'
+    end
+    object cdsPregledIzvjestajaDATUMIZVJESTAJA: TDateField
+      FieldName = 'DATUMIZVJESTAJA'
+    end
   end
 end
