@@ -160,4 +160,11 @@ object FrmExcelReader: TFrmExcelReader
       FieldName = 'DATUMIZVJESTAJA'
     end
   end
+  object qryIzvjestajPodaci: TADOQuery
+    Connection = adoconectExcel
+    EnableBCD = False
+    Parameters = <>
+    Left = 288
+    Top = 8
+  end
 end

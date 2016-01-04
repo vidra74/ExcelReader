@@ -7,6 +7,15 @@ uses
   Dialogs, StdCtrls, Grids, DBGrids, ExtCtrls, DB, ADODB, DBClient;
 
 type
+  TIzvjestajPodaci = record
+    ID: Integer;
+    Ticker: String;
+    DatumOd: TDate;
+    DatumDo: TDate;
+    Opis: String;
+  end;
+
+type
   TFrmExcelReader = class(TForm)
     pnlDohvat: TPanel;
     dbgExcel: TDBGrid;
@@ -29,6 +38,7 @@ type
     cdsPregledIzvjestajaTICKER: TStringField;
     cdsPregledIzvjestajaDATUMUNOSA: TDateField;
     cdsPregledIzvjestajaDATUMIZVJESTAJA: TDateField;
+    qryIzvjestajPodaci: TADOQuery;
     procedure btnZatvoriClick(Sender: TObject);
     procedure btnOtvoriExcelClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -42,8 +52,10 @@ type
     procedure zatvoriGrid;
     procedure GetFieldInfo;
     function analizirajExcelDatoteku: Boolean;
+    function napuniIzvjestajRecord(var Slog: TIzvjestajPodaci): Boolean;
   public
     { Public declarations }
+    IzvjestajiPodaci: TIzvjestajPodaci;
   end;
 
 var
@@ -60,6 +72,10 @@ var
   I: Integer;
   bBilanca, bRDG, bNT: Boolean;
 begin
+
+  bBilanca  := false;
+  bRDG      := false;
+  bNT       := false;
 
   for I := 0 to cboxExcelSheets.Items.Count do
   begin
@@ -122,6 +138,8 @@ begin
   cdsPath := ExtractFilePath(Application.ExeName) + 'Izvjestaji.xml';
   cdsPregledIzvjestaja.FileName := cdsPath;
 
+  if not napuniIzvjestajRecord(IzvjestajiPodaci) then Exit;
+
   nId := -1;
   try
     if not FileExists(cdsPath) then
@@ -174,6 +192,8 @@ begin
   adoconectExcel.Close;
 end;
 
+// Puni list box sa podacima o tipovima kolona iz odabranog sheeta
+
 procedure TFrmExcelReader.GetFieldInfo;
 var
   i      : integer;
@@ -190,6 +210,30 @@ begin
 
     ListBox1.Items.Add(Format('%d) NAME: %s TYPE: %s', [1+i, fname, sft]));
   end;
+end;
+
+function TFrmExcelReader.napuniIzvjestajRecord(var Slog: TIzvjestajPodaci): Boolean;
+begin
+  qryIzvjestajPodaci.Close;
+  qryIzvjestajPodaci.SQL.Text :=  'select * from [OPÆI PODACI$]';
+  try
+    try
+      qryIzvjestajPodaci.Open;
+      Slog.DatumOd := StrToDate(qryIzvjestajPodaci.FieldByName('F5').AsString);
+      Slog.DatumDo := StrToDate(qryIzvjestajPodaci.FieldByName('F8').AsString);
+      Result := qryIzvjestajPodaci.Active;
+    except
+      On E:Exception do begin
+        ShowMessage('Ne mogu napuniti poodatke izvještaja ' + E.Message);
+        Result := False;
+      end;
+    end;
+
+  finally
+    qryIzvjestajPodaci.Close;
+  end;
+
+
 end;
 
 function TFrmExcelReader.otvoriOdabraniSheet(Sheet: String): Boolean;
@@ -210,6 +254,9 @@ begin
   zatvoriGrid;
   GetFieldInfo;
 end;
+
+// Zatvaranje grida prazni grid i list kontrolu sa tipovima polja
+// Raditi prije uèitavanja novog Excel-a ili uèitavanja sheeta
 
 procedure TFrmExcelReader.zatvoriGrid;
 begin
