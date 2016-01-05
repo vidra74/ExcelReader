@@ -3,7 +3,7 @@ object FrmExcelReader: TFrmExcelReader
   Top = 0
   Caption = 'Excel Reader'
   ClientHeight = 489
-  ClientWidth = 700
+  ClientWidth = 739
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object FrmExcelReader: TFrmExcelReader
   object pnlDohvat: TPanel
     Left = 0
     Top = 0
-    Width = 700
+    Width = 739
     Height = 41
     Align = alTop
     TabOrder = 0
@@ -41,7 +41,7 @@ object FrmExcelReader: TFrmExcelReader
   object dbgExcel: TDBGrid
     Left = 120
     Top = 41
-    Width = 580
+    Width = 619
     Height = 351
     Align = alClient
     DataSource = dsExcel
@@ -99,7 +99,7 @@ object FrmExcelReader: TFrmExcelReader
   object ListBox1: TListBox
     Left = 0
     Top = 392
-    Width = 700
+    Width = 739
     Height = 97
     Align = alBottom
     ItemHeight = 13
@@ -110,19 +110,8 @@ object FrmExcelReader: TFrmExcelReader
     Left = 16
     Top = 8
   end
-  object adoconectExcel: TADOConnection
-    ConnectionString = 
-      'Provider=Microsoft.Jet.OLEDB.4.0;Password="";Data Source=D:\Drop' +
-      'box\Trziste\TSHC\TSHC-fin2011-1Y-NotREV-N-HR.xls;Persist Securit' +
-      'y Info=True'
-    KeepConnection = False
-    LoginPrompt = False
-    Provider = 'Microsoft.Jet.OLEDB.4.0'
-    Left = 376
-    Top = 8
-  end
   object qryExcel: TADOQuery
-    Connection = adoconectExcel
+    Connection = DMMain.adoConectExcel
     EnableBCD = False
     Parameters = <>
     Left = 448
@@ -161,7 +150,7 @@ object FrmExcelReader: TFrmExcelReader
     end
   end
   object qryIzvjestajPodaci: TADOQuery
-    Connection = adoconectExcel
+    Connection = DMMain.adoConectExcel
     EnableBCD = False
     Parameters = <>
     Left = 288

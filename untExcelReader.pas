@@ -24,7 +24,6 @@ type
     btnOtvoriExcel: TButton;
     dlgOpenExcel: TOpenDialog;
     lblExcelDatoteka: TLabel;
-    adoconectExcel: TADOConnection;
     qryExcel: TADOQuery;
     dsExcel: TDataSource;
     cboxExcelSheets: TComboBox;
@@ -66,7 +65,8 @@ implementation
 {$R *.dfm}
 
 uses typinfo,
-      DateUtils;
+      DateUtils,
+      untDMMain;
 
 function TFrmExcelReader.analizirajExcelDatoteku: Boolean;
 var
@@ -98,13 +98,13 @@ begin
 
   IzvjestajPath := (dlgOpenExcel.FileName);
   lblExcelDatoteka.Caption := IzvjestajPath;
-  adoconectExcel.Close;
-  adoconectExcel.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' +
+  DMMain.adoConectExcel.Close;
+  DMMain.adoConectExcel.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' +
     dlgOpenExcel.FileName + ';Extended Properties=Excel 8.0;Persist Security Info=True;';
 
   try
-    adoconectExcel.Open;
-    adoconectExcel.GetTableNames(cboxExcelSheets.Items,True);
+    DMMain.adoConectExcel.Open;
+    DMMain.adoConectExcel.GetTableNames(cboxExcelSheets.Items,True);
 
     if not analizirajExcelDatoteku then
     begin
@@ -122,7 +122,7 @@ end;
 
 procedure TFrmExcelReader.btnOtvoriSheetClick(Sender: TObject);
 begin
-  if not (adoconectExcel.Connected) then Exit;
+  if not (DMMain.adoConectExcel.Connected) then Exit;
 
   if otvoriOdabraniSheet(cboxExcelSheets.Items[cboxExcelSheets.ItemIndex]) then
     posaljiSheetUGrid
@@ -173,7 +173,7 @@ begin
         ShowMessage('Puknuo insert: ' + E.Message);
     end;
 
-
+    ShowMessage('Spremio podatke izvještaja: ' + IzvjestajiPodaci.Opis + ' Id: ' + IntToStr(IzvjestajiPodaci.ID));
   finally
     cdsPregledIzvjestaja.Close;
   end;
@@ -190,7 +190,7 @@ end;
 procedure TFrmExcelReader.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   qryExcel.Close;
-  adoconectExcel.Close;
+  DMMain.adoConectExcel.Close;
 end;
 
 // Puni list box sa podacima o tipovima kolona iz odabranog sheeta

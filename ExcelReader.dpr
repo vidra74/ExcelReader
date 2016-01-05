@@ -2,7 +2,8 @@ program ExcelReader;
 
 uses
   Forms,
-  untExcelReader in 'untExcelReader.pas' {FrmExcelReader};
+  untExcelReader in 'untExcelReader.pas' {FrmExcelReader},
+  untDMMain in 'untDMMain.pas' {DMMain: TDataModule};
 
 {$R *.res}
 
@@ -10,5 +11,6 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TFrmExcelReader, FrmExcelReader);
+  Application.CreateForm(TDMMain, DMMain);
   Application.Run;
 end.
