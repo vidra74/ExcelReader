@@ -65,7 +65,8 @@ implementation
 
 {$R *.dfm}
 
-uses typinfo;
+uses typinfo,
+      DateUtils;
 
 function TFrmExcelReader.analizirajExcelDatoteku: Boolean;
 var
@@ -95,8 +96,8 @@ begin
 
   if dlgOpenExcel.FileName = '' then Exit;
 
-  lblExcelDatoteka.Caption := (dlgOpenExcel.FileName);
-
+  IzvjestajPath := (dlgOpenExcel.FileName);
+  lblExcelDatoteka.Caption := IzvjestajPath;
   adoconectExcel.Close;
   adoconectExcel.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' +
     dlgOpenExcel.FileName + ';Extended Properties=Excel 8.0;Persist Security Info=True;';
@@ -131,7 +132,6 @@ end;
 
 procedure TFrmExcelReader.btnSpremiIzvjestajClick(Sender: TObject);
 var cdsPath: String;
-    nId: Integer;
 begin
   // ima li veæ izvještaj sa odabranim pathom ?
 
@@ -140,32 +140,33 @@ begin
 
   if not napuniIzvjestajRecord(IzvjestajiPodaci) then Exit;
 
-  nId := -1;
   try
     if not FileExists(cdsPath) then
       cdsPregledIzvjestaja.CreateDataSet
     else
       cdsPregledIzvjestaja.Open;
 
-    if cdsPregledIzvjestaja.Locate('PATH', IzvjestajPath, []) = True then begin
+    if cdsPregledIzvjestaja.Locate('OPIS', IzvjestajiPodaci.Opis, []) = True then begin
       ShowMessage(IzvjestajPath + ' ima ID ' + cdsPregledIzvjestaja.FieldByName('ID').AsString);
       Exit;
     end;
 
     if cdsPregledIzvjestaja.IsEmpty then
-      nId := 1
+      IzvjestajiPodaci.ID := 1
     else begin
-      nId := cdsPregledIzvjestaja.RecordCount + 1;
+      IzvjestajiPodaci.ID := cdsPregledIzvjestaja.RecordCount + 1;
     end;
+
+
 
     try
       cdsPregledIzvjestaja.Insert;
-      cdsPregledIzvjestaja.FieldByName('ID').AsInteger := nId;
+      cdsPregledIzvjestaja.FieldByName('ID').AsInteger := IzvjestajiPodaci.ID;
       cdsPregledIzvjestaja.FieldByName('PATH').AsString := IzvjestajPath;
-      cdsPregledIzvjestaja.FieldByName('TICKER').AsString := 'RIVP-R-A';
+      cdsPregledIzvjestaja.FieldByName('TICKER').AsString := IzvjestajiPodaci.Ticker;
       cdsPregledIzvjestaja.FieldByName('DATUMUNOSA').AsDateTime := Date;
-      cdsPregledIzvjestaja.FieldByName('DATUMIZVJESTAJA').AsDateTime := Date;
-      cdsPregledIzvjestaja.FieldByName('OPIS').AsString := ExtractFileName(IzvjestajPath);
+      cdsPregledIzvjestaja.FieldByName('DATUMIZVJESTAJA').AsDateTime := IzvjestajiPodaci.DatumDo;
+      cdsPregledIzvjestaja.FieldByName('OPIS').AsString := IzvjestajiPodaci.Opis;
       cdsPregledIzvjestaja.Post;
     except
       On E:Exception do
@@ -219,9 +220,24 @@ begin
   try
     try
       qryIzvjestajPodaci.Open;
-      Slog.DatumOd := StrToDate(qryIzvjestajPodaci.FieldByName('F5').AsString);
-      Slog.DatumDo := StrToDate(qryIzvjestajPodaci.FieldByName('F8').AsString);
-      Result := qryIzvjestajPodaci.Active;
+
+      if qryIzvjestajPodaci.IsEmpty then
+      begin
+        ShowMessage('Nema podataka u sheetu OPÆI PODACI');
+        Result := false;
+        Exit;
+      end;
+
+      Slog.DatumDo  := StrToDate(qryIzvjestajPodaci.FieldByName('F8').AsString);
+      try
+
+        Slog.DatumOd  := StrToDate(qryIzvjestajPodaci.FieldByName('F5').AsString);
+      except
+        Slog.DatumOd  := EncodeDate(YearOf(Slog.DatumDo), 1, 1);
+      end;
+      Slog.Opis     := ExtractFileName(IzvjestajPath);
+      Slog.Ticker   := Copy(Slog.Opis, 1, 4);
+      Result := True;
     except
       On E:Exception do begin
         ShowMessage('Ne mogu napuniti poodatke izvještaja ' + E.Message);
