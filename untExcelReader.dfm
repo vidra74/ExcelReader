@@ -110,50 +110,9 @@ object FrmExcelReader: TFrmExcelReader
     Left = 16
     Top = 8
   end
-  object qryExcel: TADOQuery
-    Connection = DMMain.adoConectExcel
-    EnableBCD = False
-    Parameters = <>
-    Left = 448
-    Top = 8
-  end
   object dsExcel: TDataSource
-    DataSet = qryExcel
+    DataSet = DMMain.qryExcel
     Left = 520
-    Top = 8
-  end
-  object cdsPregledIzvjestaja: TClientDataSet
-    Aggregates = <>
-    Params = <>
-    Left = 320
-    Top = 8
-    object cdsPregledIzvjestajaID: TIntegerField
-      FieldName = 'ID'
-    end
-    object cdsPregledIzvjestajaPATH: TStringField
-      FieldName = 'PATH'
-      Size = 100
-    end
-    object cdsPregledIzvjestajaOPIS: TStringField
-      FieldName = 'OPIS'
-      Size = 200
-    end
-    object cdsPregledIzvjestajaTICKER: TStringField
-      FieldName = 'TICKER'
-      Size = 10
-    end
-    object cdsPregledIzvjestajaDATUMUNOSA: TDateField
-      FieldName = 'DATUMUNOSA'
-    end
-    object cdsPregledIzvjestajaDATUMIZVJESTAJA: TDateField
-      FieldName = 'DATUMIZVJESTAJA'
-    end
-  end
-  object qryIzvjestajPodaci: TADOQuery
-    Connection = DMMain.adoConectExcel
-    EnableBCD = False
-    Parameters = <>
-    Left = 288
     Top = 8
   end
 end

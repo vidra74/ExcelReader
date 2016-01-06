@@ -10,7 +10,48 @@ object DMMain: TDMMain
     KeepConnection = False
     LoginPrompt = False
     Provider = 'Microsoft.Jet.OLEDB.4.0'
-    Left = 16
+    Left = 32
+    Top = 16
+  end
+  object cdsPregledIzvjestaja: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 32
+    Top = 72
+    object cdsPregledIzvjestajaID: TIntegerField
+      FieldName = 'ID'
+    end
+    object cdsPregledIzvjestajaPATH: TStringField
+      FieldName = 'PATH'
+      Size = 100
+    end
+    object cdsPregledIzvjestajaOPIS: TStringField
+      FieldName = 'OPIS'
+      Size = 200
+    end
+    object cdsPregledIzvjestajaTICKER: TStringField
+      FieldName = 'TICKER'
+      Size = 10
+    end
+    object cdsPregledIzvjestajaDATUMUNOSA: TDateField
+      FieldName = 'DATUMUNOSA'
+    end
+    object cdsPregledIzvjestajaDATUMIZVJESTAJA: TDateField
+      FieldName = 'DATUMIZVJESTAJA'
+    end
+  end
+  object qryIzvjestajPodaci: TADOQuery
+    Connection = adoConectExcel
+    EnableBCD = False
+    Parameters = <>
+    Left = 120
+    Top = 16
+  end
+  object qryExcel: TADOQuery
+    Connection = adoConectExcel
+    EnableBCD = False
+    Parameters = <>
+    Left = 148
     Top = 16
   end
 end

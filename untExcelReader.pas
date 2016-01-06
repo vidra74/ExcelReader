@@ -24,20 +24,11 @@ type
     btnOtvoriExcel: TButton;
     dlgOpenExcel: TOpenDialog;
     lblExcelDatoteka: TLabel;
-    qryExcel: TADOQuery;
     dsExcel: TDataSource;
     cboxExcelSheets: TComboBox;
     btnOtvoriSheet: TButton;
     ListBox1: TListBox;
     btnSpremiIzvjestaj: TButton;
-    cdsPregledIzvjestaja: TClientDataSet;
-    cdsPregledIzvjestajaID: TIntegerField;
-    cdsPregledIzvjestajaPATH: TStringField;
-    cdsPregledIzvjestajaOPIS: TStringField;
-    cdsPregledIzvjestajaTICKER: TStringField;
-    cdsPregledIzvjestajaDATUMUNOSA: TDateField;
-    cdsPregledIzvjestajaDATUMIZVJESTAJA: TDateField;
-    qryIzvjestajPodaci: TADOQuery;
     procedure btnZatvoriClick(Sender: TObject);
     procedure btnOtvoriExcelClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -136,38 +127,38 @@ begin
   // ima li veæ izvještaj sa odabranim pathom ?
 
   cdsPath := ExtractFilePath(Application.ExeName) + 'Izvjestaji.xml';
-  cdsPregledIzvjestaja.FileName := cdsPath;
+  DMMain.cdsPregledIzvjestaja.FileName := cdsPath;
 
   if not napuniIzvjestajRecord(IzvjestajiPodaci) then Exit;
 
   try
     if not FileExists(cdsPath) then
-      cdsPregledIzvjestaja.CreateDataSet
+      DMMain.cdsPregledIzvjestaja.CreateDataSet
     else
-      cdsPregledIzvjestaja.Open;
+      DMMain.cdsPregledIzvjestaja.Open;
 
-    if cdsPregledIzvjestaja.Locate('OPIS', IzvjestajiPodaci.Opis, []) = True then begin
-      ShowMessage(IzvjestajPath + ' ima ID ' + cdsPregledIzvjestaja.FieldByName('ID').AsString);
+    if DMMain.cdsPregledIzvjestaja.Locate('OPIS', IzvjestajiPodaci.Opis, []) = True then begin
+      ShowMessage(IzvjestajPath + ' ima ID ' + DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsString);
       Exit;
     end;
 
-    if cdsPregledIzvjestaja.IsEmpty then
+    if DMMain.cdsPregledIzvjestaja.IsEmpty then
       IzvjestajiPodaci.ID := 1
     else begin
-      IzvjestajiPodaci.ID := cdsPregledIzvjestaja.RecordCount + 1;
+      IzvjestajiPodaci.ID := DMMain.cdsPregledIzvjestaja.RecordCount + 1;
     end;
 
 
 
     try
-      cdsPregledIzvjestaja.Insert;
-      cdsPregledIzvjestaja.FieldByName('ID').AsInteger := IzvjestajiPodaci.ID;
-      cdsPregledIzvjestaja.FieldByName('PATH').AsString := IzvjestajPath;
-      cdsPregledIzvjestaja.FieldByName('TICKER').AsString := IzvjestajiPodaci.Ticker;
-      cdsPregledIzvjestaja.FieldByName('DATUMUNOSA').AsDateTime := Date;
-      cdsPregledIzvjestaja.FieldByName('DATUMIZVJESTAJA').AsDateTime := IzvjestajiPodaci.DatumDo;
-      cdsPregledIzvjestaja.FieldByName('OPIS').AsString := IzvjestajiPodaci.Opis;
-      cdsPregledIzvjestaja.Post;
+      DMMain.cdsPregledIzvjestaja.Insert;
+      DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsInteger := IzvjestajiPodaci.ID;
+      DMMain.cdsPregledIzvjestaja.FieldByName('PATH').AsString := IzvjestajPath;
+      DMMain.cdsPregledIzvjestaja.FieldByName('TICKER').AsString := IzvjestajiPodaci.Ticker;
+      DMMain.cdsPregledIzvjestaja.FieldByName('DATUMUNOSA').AsDateTime := Date;
+      DMMain.cdsPregledIzvjestaja.FieldByName('DATUMIZVJESTAJA').AsDateTime := IzvjestajiPodaci.DatumDo;
+      DMMain.cdsPregledIzvjestaja.FieldByName('OPIS').AsString := IzvjestajiPodaci.Opis;
+      DMMain.cdsPregledIzvjestaja.Post;
     except
       On E:Exception do
         ShowMessage('Puknuo insert: ' + E.Message);
@@ -175,7 +166,7 @@ begin
 
     ShowMessage('Spremio podatke izvještaja: ' + IzvjestajiPodaci.Opis + ' Id: ' + IntToStr(IzvjestajiPodaci.ID));
   finally
-    cdsPregledIzvjestaja.Close;
+    DMMain.cdsPregledIzvjestaja.Close;
   end;
 
 
@@ -189,7 +180,7 @@ end;
 
 procedure TFrmExcelReader.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  qryExcel.Close;
+  DMMain.qryExcel.Close;
   DMMain.adoConectExcel.Close;
 end;
 
@@ -203,11 +194,11 @@ var
   fname  : string;
 begin
   ListBox1.Clear;
-  for i := 0 to qryExcel.Fields.Count - 1 do
+  for i := 0 to DMMain.qryExcel.Fields.Count - 1 do
   begin
-    ft := qryExcel.Fields[i].DataType;
+    ft := DMMain.qryExcel.Fields[i].DataType;
     sft := GetEnumName(TypeInfo(TFieldType), Integer(ft));
-    fname:= qryExcel.Fields[i].FieldName;
+    fname:= DMMain.qryExcel.Fields[i].FieldName;
 
     ListBox1.Items.Add(Format('%d) NAME: %s TYPE: %s', [1+i, fname, sft]));
   end;
@@ -215,23 +206,23 @@ end;
 
 function TFrmExcelReader.napuniIzvjestajRecord(var Slog: TIzvjestajPodaci): Boolean;
 begin
-  qryIzvjestajPodaci.Close;
-  qryIzvjestajPodaci.SQL.Text :=  'select * from [OPÆI PODACI$]';
+  DMMain.qryIzvjestajPodaci.Close;
+  DMMain.qryIzvjestajPodaci.SQL.Text :=  'select * from [OPÆI PODACI$]';
   try
     try
-      qryIzvjestajPodaci.Open;
+      DMMain.qryIzvjestajPodaci.Open;
 
-      if qryIzvjestajPodaci.IsEmpty then
+      if DMMain.qryIzvjestajPodaci.IsEmpty then
       begin
         ShowMessage('Nema podataka u sheetu OPÆI PODACI');
         Result := false;
         Exit;
       end;
 
-      Slog.DatumDo  := StrToDate(qryIzvjestajPodaci.FieldByName('F8').AsString);
+      Slog.DatumDo  := StrToDate(DMMain.qryIzvjestajPodaci.FieldByName('F8').AsString);
       try
 
-        Slog.DatumOd  := StrToDate(qryIzvjestajPodaci.FieldByName('F5').AsString);
+        Slog.DatumOd  := StrToDate(DMMain.qryIzvjestajPodaci.FieldByName('F5').AsString);
       except
         Slog.DatumOd  := EncodeDate(YearOf(Slog.DatumDo), 1, 1);
       end;
@@ -246,7 +237,7 @@ begin
     end;
 
   finally
-    qryIzvjestajPodaci.Close;
+    DMMain.qryIzvjestajPodaci.Close;
   end;
 
 
@@ -254,11 +245,11 @@ end;
 
 function TFrmExcelReader.otvoriOdabraniSheet(Sheet: String): Boolean;
 begin
-  qryExcel.Close;
-  qryExcel.SQL.Text :=  'select * from [' + Sheet + ']';
+  DMMain.qryExcel.Close;
+  DMMain.qryExcel.SQL.Text :=  'select * from [' + Sheet + ']';
   try
-    qryExcel.Open;
-    Result := qryExcel.Active;
+    DMMain.qryExcel.Open;
+    Result := DMMain.qryExcel.Active;
   except
     ShowMessage('Ne mogu otvoriti Sheet ' + Sheet);
     Result := false;
