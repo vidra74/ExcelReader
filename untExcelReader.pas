@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Grids, DBGrids, ExtCtrls, DB, ADODB, DBClient;
+  Dialogs, StdCtrls, Grids, DBGrids, ExtCtrls, DB, ADODB, DBClient,
+  untObjReport;
 
 type
   TIzvjestajPodaci = record
@@ -36,12 +37,11 @@ type
     procedure btnSpremiIzvjestajClick(Sender: TObject);
   private
     { Private declarations }
-    IzvjestajPath: String;
+    Izvjestaj: TObjReport;
     function otvoriOdabraniSheet(Sheet: String): Boolean;
     procedure posaljiSheetUGrid;
     procedure zatvoriGrid;
     procedure GetFieldInfo;
-    function analizirajExcelDatoteku: Boolean;
     function napuniIzvjestajRecord(var Slog: TIzvjestajPodaci): Boolean;
   public
     { Public declarations }
@@ -59,45 +59,26 @@ uses typinfo,
       DateUtils,
       untDMMain;
 
-function TFrmExcelReader.analizirajExcelDatoteku: Boolean;
-var
-  I: Integer;
-  bBilanca, bRDG, bNT: Boolean;
-begin
-
-  bBilanca  := false;
-  bRDG      := false;
-  bNT       := false;
-
-  for I := 0 to cboxExcelSheets.Items.Count do
-  begin
-    if not bBilanca then
-      bBilanca := (Pos('Bilanca', cboxExcelSheets.Items.ValueFromIndex[I]) > -1);
-    if not bRDG then
-      bRDG := (Pos('RDG', cboxExcelSheets.Items.ValueFromIndex[I]) > -1);
-    if not bNT then
-      bNT := (Pos('NT_I', cboxExcelSheets.Items.ValueFromIndex[I]) > -1);
-  end;
-  Result := bBilanca and bRDG and bNT;
-end;
-
 procedure TFrmExcelReader.btnOtvoriExcelClick(Sender: TObject);
 begin
   dlgOpenExcel.Execute();
 
   if dlgOpenExcel.FileName = '' then Exit;
 
-  IzvjestajPath := (dlgOpenExcel.FileName);
-  lblExcelDatoteka.Caption := IzvjestajPath;
+  // ako je izvještaj veæ kreiran create æe ga ponovo rekreirati
+  Izvjestaj := TObjReport.Create(dlgOpenExcel.FileName);
+
+  lblExcelDatoteka.Caption := Izvjestaj.Path;
   DMMain.adoConectExcel.Close;
   DMMain.adoConectExcel.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' +
     dlgOpenExcel.FileName + ';Extended Properties=Excel 8.0;Persist Security Info=True;';
 
   try
     DMMain.adoConectExcel.Open;
-    DMMain.adoConectExcel.GetTableNames(cboxExcelSheets.Items,True);
+    DMMain.adoConectExcel.GetTableNames(Izvjestaj.Sheets, True);
+    cboxExcelSheets.Items.AddStrings(Izvjestaj.Sheets);
 
-    if not analizirajExcelDatoteku then
+    if not Izvjestaj.analyzeExcelReport then
     begin
       MessageDlg('Neispravan Excel izvještaj', mtError, [mbOk], 0);
     end else begin
@@ -138,7 +119,7 @@ begin
       DMMain.cdsPregledIzvjestaja.Open;
 
     if DMMain.cdsPregledIzvjestaja.Locate('OPIS', IzvjestajiPodaci.Opis, []) = True then begin
-      ShowMessage(IzvjestajPath + ' ima ID ' + DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsString);
+      ShowMessage(Izvjestaj.Path + ' ima ID ' + DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsString);
       Exit;
     end;
 
@@ -153,7 +134,7 @@ begin
     try
       DMMain.cdsPregledIzvjestaja.Insert;
       DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsInteger := IzvjestajiPodaci.ID;
-      DMMain.cdsPregledIzvjestaja.FieldByName('PATH').AsString := IzvjestajPath;
+      DMMain.cdsPregledIzvjestaja.FieldByName('PATH').AsString := Izvjestaj.Path;
       DMMain.cdsPregledIzvjestaja.FieldByName('TICKER').AsString := IzvjestajiPodaci.Ticker;
       DMMain.cdsPregledIzvjestaja.FieldByName('DATUMUNOSA').AsDateTime := Date;
       DMMain.cdsPregledIzvjestaja.FieldByName('DATUMIZVJESTAJA').AsDateTime := IzvjestajiPodaci.DatumDo;
@@ -180,6 +161,7 @@ end;
 
 procedure TFrmExcelReader.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  FreeAndNil(Izvjestaj);
   DMMain.qryExcel.Close;
   DMMain.adoConectExcel.Close;
 end;
@@ -226,7 +208,7 @@ begin
       except
         Slog.DatumOd  := EncodeDate(YearOf(Slog.DatumDo), 1, 1);
       end;
-      Slog.Opis     := ExtractFileName(IzvjestajPath);
+      Slog.Opis     := ExtractFileName(Izvjestaj.Path);
       Slog.Ticker   := Copy(Slog.Opis, 1, 4);
       Result := True;
     except

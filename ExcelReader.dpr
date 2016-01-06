@@ -3,7 +3,8 @@ program ExcelReader;
 uses
   Forms,
   untExcelReader in 'untExcelReader.pas' {FrmExcelReader},
-  untDMMain in 'untDMMain.pas' {DMMain: TDataModule};
+  untDMMain in 'untDMMain.pas' {DMMain: TDataModule},
+  untObjReport in 'untObjReport.pas';
 
 {$R *.res}
 
