@@ -8,6 +8,8 @@ type TObjReport = class (TObject)
   private
     mPath: String;
     mSheetList: TStringList;
+    mStatus: Boolean;
+    mStatusMessage: String;
     procedure clearSheets;
   public
     constructor Create(ReportPath: String);
@@ -15,6 +17,8 @@ type TObjReport = class (TObject)
     function analyzeExcelReport: Boolean;
     property Path: String read mPath;
     property Sheets: TStringList read mSheetList write mSheetList;
+    property Status: Boolean read mStatus;
+    property StatusMessage: String read mStatusMessage;
 end;
 
 implementation
@@ -31,16 +35,22 @@ begin
   bRDG      := false;
   bNT       := false;
 
-  for I := 0 to Sheets.Count do
+  for I := 0 to Sheets.Count - 1 do
   begin
     if not bBilanca then
-      bBilanca := (Pos('Bilanca', Sheets.ValueFromIndex[I]) > -1);
+      bBilanca := (Pos('Bilanca', Sheets[I]) > 0);
     if not bRDG then
-      bRDG := (Pos('RDG', Sheets.ValueFromIndex[I]) > -1);
+      bRDG := (Pos('RDG', Sheets[I]) > 0);
     if not bNT then
-      bNT := (Pos('NT_I', Sheets.ValueFromIndex[I]) > -1);
+      bNT := (Pos('NT_I', Sheets[I]) > 0);
   end;
-  Result := bBilanca and bRDG and bNT;
+
+  mStatus := bBilanca and bRDG and bNT;
+  if not mStatus then
+    mStatusMessage := 'Excel file is not proper Croatian report. Check content for ' + Path
+  else
+    mStatusMessage := 'Correct Excel file ' + Path;
+  Result := mStatus;
 end;
 
 procedure TObjReport.clearSheets;
@@ -55,9 +65,10 @@ begin
 
   mPath := ReportPath;
   if Sheets <> nil then clearSheets;
-
   Sheets := TStringList.Create;
 
+  mStatus := True;
+  mStatusMessage := 'Empty Report object created for ' + ReportPath;
 end;
 
 destructor TObjReport.Destroy;

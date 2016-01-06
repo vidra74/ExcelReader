@@ -69,19 +69,21 @@ begin
   Izvjestaj := TObjReport.Create(dlgOpenExcel.FileName);
 
   lblExcelDatoteka.Caption := Izvjestaj.Path;
+
   DMMain.adoConectExcel.Close;
   DMMain.adoConectExcel.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' +
-    dlgOpenExcel.FileName + ';Extended Properties=Excel 8.0;Persist Security Info=True;';
+    Izvjestaj.Path + ';Extended Properties=Excel 8.0;Persist Security Info=True;';
 
   try
     DMMain.adoConectExcel.Open;
     DMMain.adoConectExcel.GetTableNames(Izvjestaj.Sheets, True);
-    cboxExcelSheets.Items.AddStrings(Izvjestaj.Sheets);
+
 
     if not Izvjestaj.analyzeExcelReport then
     begin
-      MessageDlg('Neispravan Excel izvještaj', mtError, [mbOk], 0);
+      MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
     end else begin
+      cboxExcelSheets.Items.AddStrings(Izvjestaj.Sheets);
       cboxExcelSheets.ItemIndex := 0;
       btnOtvoriSheetClick(Sender);
     end;
