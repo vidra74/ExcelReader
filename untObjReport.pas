@@ -24,7 +24,8 @@ type TObjReport = class (TObject)
     constructor Create(ReportPath: String);
     destructor Destroy; override;
     function analyzeExcelReport: Boolean;
-    function saveReportInfo(Slog: TIzvjestajPodaci): Boolean;
+    function Open: Boolean;
+    procedure Close;
     property Path: String read mPath;
     property Sheets: TStringList read mSheetList write mSheetList;
     property Status: Boolean read mStatus;
@@ -72,6 +73,11 @@ begin
   Sheets.Free;
 end;
 
+procedure TObjReport.Close;
+begin
+  DMMain.adoConectExcel.Close;
+end;
+
 constructor TObjReport.Create(ReportPath: String);
 begin
   inherited Create;
@@ -90,50 +96,26 @@ begin
   inherited;
 end;
 
-function TObjReport.saveReportInfo(Slog: TIzvjestajPodaci): Boolean;
+function TObjReport.Open: Boolean;
 begin
+
+  Result := false;
+  DMMain.adoConectExcel.Close;
+  DMMain.adoConectExcel.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' +
+    Self.Path + ';Extended Properties=Excel 8.0;Persist Security Info=True;';
+
   try
 
-    Result := False;
-
-    if not FileExists(DMMain.cdsPregledIzvjestaja.FileName) then
-      DMMain.cdsPregledIzvjestaja.CreateDataSet
-    else
-      DMMain.cdsPregledIzvjestaja.Open;
-
-    if DMMain.cdsPregledIzvjestaja.Locate('OPIS', Slog.Opis, []) = True then begin
-      mStatusMessage := DMMain.cdsPregledIzvjestaja.FileName +
-                          ' ima ID ' + DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsString;
-      Exit;
-    end;
-
-    if DMMain.cdsPregledIzvjestaja.IsEmpty then
-      Slog.ID := 1
-    else begin
-      Slog.ID := DMMain.cdsPregledIzvjestaja.RecordCount + 1;
-    end;
-
-
-
-    try
-      DMMain.cdsPregledIzvjestaja.Insert;
-      DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsInteger := Slog.ID;
-      DMMain.cdsPregledIzvjestaja.FieldByName('PATH').AsString := Self.Path;
-      DMMain.cdsPregledIzvjestaja.FieldByName('TICKER').AsString := Slog.Ticker;
-      DMMain.cdsPregledIzvjestaja.FieldByName('DATUMUNOSA').AsDateTime := Date;
-      DMMain.cdsPregledIzvjestaja.FieldByName('DATUMIZVJESTAJA').AsDateTime := Slog.DatumDo;
-      DMMain.cdsPregledIzvjestaja.FieldByName('OPIS').AsString := Slog.Opis;
-      DMMain.cdsPregledIzvjestaja.Post;
-    except
-      On E:Exception do
-        mStatusMessage := 'Puknuo insert: ' + E.Message;
-    end;
-
+    DMMain.adoConectExcel.Open;
+    DMMain.adoConectExcel.GetTableNames(Self.Sheets, True);
     Result := True;
-  finally
-    DMMain.cdsPregledIzvjestaja.Close;
+  except
+    On E:Exception do begin
+      mStatus := false;
+      mStatusMessage := 'Otvaranje Excel datoteke: ' + E.Message;
+      Result := false;
+    end;
   end;
-
 end;
 
 end.

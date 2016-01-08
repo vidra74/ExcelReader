@@ -13,6 +13,7 @@ object FrmExcelReader: TFrmExcelReader
   OldCreateOrder = False
   Position = poDesktopCenter
   OnClose = FormClose
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object pnlDohvat: TPanel

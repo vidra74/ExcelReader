@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Grids, DBGrids, ExtCtrls, DB, ADODB, DBClient,
-  untObjReport;
+  untObjReport,
+  untObjReportList;
 
 type
   TFrmExcelReader = class(TForm)
@@ -26,13 +27,16 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnOtvoriSheetClick(Sender: TObject);
     procedure btnSpremiIzvjestajClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     Izvjestaj: TObjReport;
+    ListaIzvjestaja: TObjReportList;
     function otvoriOdabraniSheet(Sheet: String): Boolean;
     procedure posaljiSheetUGrid;
     procedure zatvoriGrid;
     procedure GetFieldInfo;
+    procedure spremiIzvjestajInfo;
     function napuniIzvjestajRecord(var Slog: TIzvjestajPodaci): Boolean;
   public
     { Public declarations }
@@ -58,31 +62,23 @@ begin
 
   // ako je izvještaj veæ kreiran create æe ga ponovo rekreirati
   Izvjestaj := TObjReport.Create(dlgOpenExcel.FileName);
-
   lblExcelDatoteka.Caption := Izvjestaj.Path;
 
-  DMMain.adoConectExcel.Close;
-  DMMain.adoConectExcel.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' +
-    Izvjestaj.Path + ';Extended Properties=Excel 8.0;Persist Security Info=True;';
+  if Izvjestaj.Open then
+  begin
 
-  try
-    DMMain.adoConectExcel.Open;
-    DMMain.adoConectExcel.GetTableNames(Izvjestaj.Sheets, True);
-
-
-    if not Izvjestaj.analyzeExcelReport then
+    if Izvjestaj.analyzeExcelReport then
     begin
-      MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
-    end else begin
+
       cboxExcelSheets.Items.AddStrings(Izvjestaj.Sheets);
       cboxExcelSheets.ItemIndex := 0;
       btnOtvoriSheetClick(Sender);
-    end;
+    end else begin
 
-  except
-    On E:Exception do
-      MessageDlg('adoconnExcel.Open : ' + E.Message, mtError, [mbOk], 0);
-  end;
+      MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
+    end;
+  end else
+    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
 end;
 
 procedure TFrmExcelReader.btnOtvoriSheetClick(Sender: TObject);
@@ -96,23 +92,9 @@ begin
 end;
 
 procedure TFrmExcelReader.btnSpremiIzvjestajClick(Sender: TObject);
-var cdsPath: String;
 begin
-  // ima li veæ izvještaj sa odabranim pathom ?
 
-  cdsPath := ExtractFilePath(Application.ExeName) + 'Izvjestaji.xml';
-  DMMain.cdsPregledIzvjestaja.FileName := cdsPath;
-
-  if not napuniIzvjestajRecord(IzvjestajiPodaci) then Exit;
-
-  if not Izvjestaj.saveReportInfo(IzvjestajiPodaci) then
-    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0)
-  else
-    MessageDlg('Spremio podatke izvještaja: ' + IzvjestajiPodaci.Opis + ' Id: ' + IntToStr(IzvjestajiPodaci.ID),
-                mtInformation,
-                [mbOk],
-                0);
-
+  spremiIzvjestajInfo;
 end;
 
 procedure TFrmExcelReader.btnZatvoriClick(Sender: TObject);
@@ -122,7 +104,16 @@ end;
 
 procedure TFrmExcelReader.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  Izvjestaj.Close;
+  ListaIzvjestaja.Close;
   FreeAndNil(Izvjestaj);
+  FreeAndNil(ListaIzvjestaja);
+end;
+
+procedure TFrmExcelReader.FormShow(Sender: TObject);
+begin
+  ListaIzvjestaja := TObjReportList.Create(ExtractFilePath(Application.ExeName));
+  ListaIzvjestaja.Open;
 end;
 
 // Puni list box sa podacima o tipovima kolona iz odabranog sheeta
@@ -201,6 +192,37 @@ procedure TFrmExcelReader.posaljiSheetUGrid;
 begin
   zatvoriGrid;
   GetFieldInfo;
+end;
+
+procedure TFrmExcelReader.spremiIzvjestajInfo;
+begin
+
+  if not napuniIzvjestajRecord(IzvjestajiPodaci) then
+  begin
+
+    MessageDlg('Greška pregleda izvještaja', mtError, [mbOk], 0);
+    Exit;
+  end;
+
+  // ima li veæ izvještaj sa odabranim pathom ?
+  IzvjestajiPodaci.ID := ListaIzvjestaja.Locate('OPIS', IzvjestajiPodaci.Opis);
+
+  if IzvjestajiPodaci.ID < 1 then
+  begin
+
+    IzvjestajiPodaci.ID := ListaIzvjestaja.AddNewReport(IzvjestajiPodaci);
+    if IzvjestajiPodaci.ID < 1 then
+      MessageDlg(ListaIzvjestaja.StatusMessage, mtError, [mbOk], 0)
+    else
+      MessageDlg('Spremio podatke izvještaja: ' + IzvjestajiPodaci.Opis + ' Id: ' + IntToStr(IzvjestajiPodaci.ID),
+                mtInformation,
+                [mbOk],
+                0);
+   end else
+    MessageDlg('Izvještaj: ' + IzvjestajiPodaci.Opis + ' postoji kao Id: ' + IntToStr(IzvjestajiPodaci.ID),
+                mtInformation,
+                [mbOk],
+                0);
 end;
 
 // Zatvaranje grida prazni grid i list kontrolu sa tipovima polja
