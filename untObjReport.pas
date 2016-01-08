@@ -4,6 +4,15 @@ interface
 
 uses Classes;
 
+type
+  TIzvjestajPodaci = record
+    ID: Integer;
+    Ticker: String;
+    DatumOd: TDate;
+    DatumDo: TDate;
+    Opis: String;
+  end;
+
 type TObjReport = class (TObject)
   private
     mPath: String;
@@ -15,6 +24,7 @@ type TObjReport = class (TObject)
     constructor Create(ReportPath: String);
     destructor Destroy; override;
     function analyzeExcelReport: Boolean;
+    function saveReportInfo(Slog: TIzvjestajPodaci): Boolean;
     property Path: String read mPath;
     property Sheets: TStringList read mSheetList write mSheetList;
     property Status: Boolean read mStatus;
@@ -24,6 +34,9 @@ end;
 implementation
 
 { TObjReport }
+
+uses untDMMain,
+      SysUtils;
 
 function TObjReport.analyzeExcelReport: Boolean;
 var
@@ -75,6 +88,52 @@ destructor TObjReport.Destroy;
 begin
   clearSheets;
   inherited;
+end;
+
+function TObjReport.saveReportInfo(Slog: TIzvjestajPodaci): Boolean;
+begin
+  try
+
+    Result := False;
+
+    if not FileExists(DMMain.cdsPregledIzvjestaja.FileName) then
+      DMMain.cdsPregledIzvjestaja.CreateDataSet
+    else
+      DMMain.cdsPregledIzvjestaja.Open;
+
+    if DMMain.cdsPregledIzvjestaja.Locate('OPIS', Slog.Opis, []) = True then begin
+      mStatusMessage := DMMain.cdsPregledIzvjestaja.FileName +
+                          ' ima ID ' + DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsString;
+      Exit;
+    end;
+
+    if DMMain.cdsPregledIzvjestaja.IsEmpty then
+      Slog.ID := 1
+    else begin
+      Slog.ID := DMMain.cdsPregledIzvjestaja.RecordCount + 1;
+    end;
+
+
+
+    try
+      DMMain.cdsPregledIzvjestaja.Insert;
+      DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsInteger := Slog.ID;
+      DMMain.cdsPregledIzvjestaja.FieldByName('PATH').AsString := Self.Path;
+      DMMain.cdsPregledIzvjestaja.FieldByName('TICKER').AsString := Slog.Ticker;
+      DMMain.cdsPregledIzvjestaja.FieldByName('DATUMUNOSA').AsDateTime := Date;
+      DMMain.cdsPregledIzvjestaja.FieldByName('DATUMIZVJESTAJA').AsDateTime := Slog.DatumDo;
+      DMMain.cdsPregledIzvjestaja.FieldByName('OPIS').AsString := Slog.Opis;
+      DMMain.cdsPregledIzvjestaja.Post;
+    except
+      On E:Exception do
+        mStatusMessage := 'Puknuo insert: ' + E.Message;
+    end;
+
+    Result := True;
+  finally
+    DMMain.cdsPregledIzvjestaja.Close;
+  end;
+
 end;
 
 end.

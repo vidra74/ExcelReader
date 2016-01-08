@@ -17,6 +17,7 @@ type
     cdsPregledIzvjestajaDATUMIZVJESTAJA: TDateField;
     qryIzvjestajPodaci: TADOQuery;
     qryExcel: TADOQuery;
+    procedure DataModuleDestroy(Sender: TObject);
   private
     { Private declarations }
   public
@@ -29,5 +30,13 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TDMMain.DataModuleDestroy(Sender: TObject);
+begin
+  qryIzvjestajPodaci.Close;
+  qryExcel.Close;
+  cdsPregledIzvjestaja.Close;
+  adoConectExcel.Close;
+end;
 
 end.

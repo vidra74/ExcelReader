@@ -8,15 +8,6 @@ uses
   untObjReport;
 
 type
-  TIzvjestajPodaci = record
-    ID: Integer;
-    Ticker: String;
-    DatumOd: TDate;
-    DatumDo: TDate;
-    Opis: String;
-  end;
-
-type
   TFrmExcelReader = class(TForm)
     pnlDohvat: TPanel;
     dbgExcel: TDBGrid;
@@ -114,45 +105,13 @@ begin
 
   if not napuniIzvjestajRecord(IzvjestajiPodaci) then Exit;
 
-  try
-    if not FileExists(cdsPath) then
-      DMMain.cdsPregledIzvjestaja.CreateDataSet
-    else
-      DMMain.cdsPregledIzvjestaja.Open;
-
-    if DMMain.cdsPregledIzvjestaja.Locate('OPIS', IzvjestajiPodaci.Opis, []) = True then begin
-      ShowMessage(Izvjestaj.Path + ' ima ID ' + DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsString);
-      Exit;
-    end;
-
-    if DMMain.cdsPregledIzvjestaja.IsEmpty then
-      IzvjestajiPodaci.ID := 1
-    else begin
-      IzvjestajiPodaci.ID := DMMain.cdsPregledIzvjestaja.RecordCount + 1;
-    end;
-
-
-
-    try
-      DMMain.cdsPregledIzvjestaja.Insert;
-      DMMain.cdsPregledIzvjestaja.FieldByName('ID').AsInteger := IzvjestajiPodaci.ID;
-      DMMain.cdsPregledIzvjestaja.FieldByName('PATH').AsString := Izvjestaj.Path;
-      DMMain.cdsPregledIzvjestaja.FieldByName('TICKER').AsString := IzvjestajiPodaci.Ticker;
-      DMMain.cdsPregledIzvjestaja.FieldByName('DATUMUNOSA').AsDateTime := Date;
-      DMMain.cdsPregledIzvjestaja.FieldByName('DATUMIZVJESTAJA').AsDateTime := IzvjestajiPodaci.DatumDo;
-      DMMain.cdsPregledIzvjestaja.FieldByName('OPIS').AsString := IzvjestajiPodaci.Opis;
-      DMMain.cdsPregledIzvjestaja.Post;
-    except
-      On E:Exception do
-        ShowMessage('Puknuo insert: ' + E.Message);
-    end;
-
-    ShowMessage('Spremio podatke izvještaja: ' + IzvjestajiPodaci.Opis + ' Id: ' + IntToStr(IzvjestajiPodaci.ID));
-  finally
-    DMMain.cdsPregledIzvjestaja.Close;
-  end;
-
-
+  if not Izvjestaj.saveReportInfo(IzvjestajiPodaci) then
+    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0)
+  else
+    MessageDlg('Spremio podatke izvještaja: ' + IzvjestajiPodaci.Opis + ' Id: ' + IntToStr(IzvjestajiPodaci.ID),
+                mtInformation,
+                [mbOk],
+                0);
 
 end;
 
@@ -164,8 +123,6 @@ end;
 procedure TFrmExcelReader.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   FreeAndNil(Izvjestaj);
-  DMMain.qryExcel.Close;
-  DMMain.adoConectExcel.Close;
 end;
 
 // Puni list box sa podacima o tipovima kolona iz odabranog sheeta
