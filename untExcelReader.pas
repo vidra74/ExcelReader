@@ -32,13 +32,15 @@ type
     { Private declarations }
     Izvjestaj: TObjReport;
     ListaIzvjestaja: TObjReportList;
-
     procedure posaljiSheetUGrid;
     procedure zatvoriGrid;
-    procedure spremiIzvjestajInfo;
+
   public
     { Public declarations }
     IzvjestajiPodaci: TIzvjestajPodaci;
+    procedure otvoriExcel;
+    procedure otvoriExcelSheet(SheetName: String);
+    procedure spremiIzvjestajInfo;
   end;
 
 var
@@ -54,40 +56,21 @@ uses typinfo,
 
 procedure TFrmExcelReader.btnOtvoriExcelClick(Sender: TObject);
 begin
-  dlgOpenExcel.Execute();
 
+  dlgOpenExcel.Execute();
   if dlgOpenExcel.FileName = '' then Exit;
 
   // ako je izvještaj veæ kreiran create æe ga ponovo rekreirati
   Izvjestaj := TObjReport.Create(dlgOpenExcel.FileName);
   lblExcelDatoteka.Caption := Izvjestaj.Path;
 
-  if Izvjestaj.Open then
-  begin
-
-    if Izvjestaj.analyzeExcelReport then
-    begin
-
-      cboxExcelSheets.Items.AddStrings(Izvjestaj.Sheets);
-      cboxExcelSheets.ItemIndex := 0;
-      btnOtvoriSheetClick(Sender);
-    end else begin
-
-      MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
-    end;
-  end else
-    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
+  otvoriExcel;
 end;
 
 procedure TFrmExcelReader.btnOtvoriSheetClick(Sender: TObject);
 begin
 
-  if Izvjestaj.otvoriOdabraniSheet(cboxExcelSheets.Items[cboxExcelSheets.ItemIndex]) then
-    posaljiSheetUGrid
-  else begin
-    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
-    zatvoriGrid;
-  end;
+  otvoriExcelSheet(cboxExcelSheets.Items[cboxExcelSheets.ItemIndex]);
 end;
 
 procedure TFrmExcelReader.btnSpremiIzvjestajClick(Sender: TObject);
@@ -115,9 +98,40 @@ begin
   ListaIzvjestaja.Open;
 end;
 
+procedure TFrmExcelReader.otvoriExcel;
+begin
+
+  if Izvjestaj.Open then
+  begin
+
+    if Izvjestaj.analyzeExcelReport then
+    begin
+
+      cboxExcelSheets.Items.AddStrings(Izvjestaj.Sheets);
+      cboxExcelSheets.ItemIndex := 0;
+      otvoriExcelSheet(cboxExcelSheets.Items[0]);
+    end else begin
+
+      MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
+    end;
+  end else
+    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
+end;
+
+procedure TFrmExcelReader.otvoriExcelSheet(SheetName: String);
+begin
+  if Izvjestaj.otvoriOdabraniSheet(SheetName) then
+    posaljiSheetUGrid
+  else begin
+    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
+    zatvoriGrid;
+  end;
+end;
+
 procedure TFrmExcelReader.posaljiSheetUGrid;
 begin
   zatvoriGrid;
+  ListBox1.Items.Clear;
   ListBox1.Items.AddStrings(Izvjestaj.Fields);
 end;
 
@@ -127,7 +141,7 @@ begin
   if not Izvjestaj.napuniIzvjestajRecord(IzvjestajiPodaci) then
   begin
 
-    MessageDlg('Greška pregleda izvještaja', mtError, [mbOk], 0);
+    MessageDlg('Greška pregleda izvještaja ' + Izvjestaj.StatusMessage, mtError, [mbOk], 0);
     Exit;
   end;
 
@@ -158,7 +172,7 @@ end;
 procedure TFrmExcelReader.zatvoriGrid;
 begin
   dbgExcel.Columns.Clear;
-  ListBox1.Clear;
+  ListBox1.Items.Clear;
 end;
 
 end.
