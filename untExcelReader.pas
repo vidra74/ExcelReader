@@ -32,12 +32,10 @@ type
     { Private declarations }
     Izvjestaj: TObjReport;
     ListaIzvjestaja: TObjReportList;
-    function otvoriOdabraniSheet(Sheet: String): Boolean;
+
     procedure posaljiSheetUGrid;
     procedure zatvoriGrid;
-    procedure GetFieldInfo;
     procedure spremiIzvjestajInfo;
-    function napuniIzvjestajRecord(var Slog: TIzvjestajPodaci): Boolean;
   public
     { Public declarations }
     IzvjestajiPodaci: TIzvjestajPodaci;
@@ -83,12 +81,13 @@ end;
 
 procedure TFrmExcelReader.btnOtvoriSheetClick(Sender: TObject);
 begin
-  if not (DMMain.adoConectExcel.Connected) then Exit;
 
-  if otvoriOdabraniSheet(cboxExcelSheets.Items[cboxExcelSheets.ItemIndex]) then
+  if Izvjestaj.otvoriOdabraniSheet(cboxExcelSheets.Items[cboxExcelSheets.ItemIndex]) then
     posaljiSheetUGrid
-  else
+  else begin
+    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
     zatvoriGrid;
+  end;
 end;
 
 procedure TFrmExcelReader.btnSpremiIzvjestajClick(Sender: TObject);
@@ -116,88 +115,16 @@ begin
   ListaIzvjestaja.Open;
 end;
 
-// Puni list box sa podacima o tipovima kolona iz odabranog sheeta
-
-procedure TFrmExcelReader.GetFieldInfo;
-var
-  i      : integer;
-  ft     : TFieldType;
-  sft    : string;
-  fname  : string;
-begin
-  ListBox1.Clear;
-  for i := 0 to DMMain.qryExcel.Fields.Count - 1 do
-  begin
-    ft := DMMain.qryExcel.Fields[i].DataType;
-    sft := GetEnumName(TypeInfo(TFieldType), Integer(ft));
-    fname:= DMMain.qryExcel.Fields[i].FieldName;
-
-    ListBox1.Items.Add(Format('%d) NAME: %s TYPE: %s', [1+i, fname, sft]));
-  end;
-end;
-
-function TFrmExcelReader.napuniIzvjestajRecord(var Slog: TIzvjestajPodaci): Boolean;
-begin
-  DMMain.qryIzvjestajPodaci.Close;
-  DMMain.qryIzvjestajPodaci.SQL.Text :=  'select * from [OPÆI PODACI$]';
-  try
-    try
-      DMMain.qryIzvjestajPodaci.Open;
-
-      if DMMain.qryIzvjestajPodaci.IsEmpty then
-      begin
-        ShowMessage('Nema podataka u sheetu OPÆI PODACI');
-        Result := false;
-        Exit;
-      end;
-
-      Slog.DatumDo  := StrToDate(DMMain.qryIzvjestajPodaci.FieldByName('F8').AsString);
-      try
-
-        Slog.DatumOd  := StrToDate(DMMain.qryIzvjestajPodaci.FieldByName('F5').AsString);
-      except
-        Slog.DatumOd  := EncodeDate(YearOf(Slog.DatumDo), 1, 1);
-      end;
-      Slog.Opis     := ExtractFileName(Izvjestaj.Path);
-      Slog.Ticker   := Copy(Slog.Opis, 1, 4);
-      Result := True;
-    except
-      On E:Exception do begin
-        ShowMessage('Ne mogu napuniti poodatke izvještaja ' + E.Message);
-        Result := False;
-      end;
-    end;
-
-  finally
-    DMMain.qryIzvjestajPodaci.Close;
-  end;
-
-
-end;
-
-function TFrmExcelReader.otvoriOdabraniSheet(Sheet: String): Boolean;
-begin
-  DMMain.qryExcel.Close;
-  DMMain.qryExcel.SQL.Text :=  'select * from [' + Sheet + ']';
-  try
-    DMMain.qryExcel.Open;
-    Result := DMMain.qryExcel.Active;
-  except
-    ShowMessage('Ne mogu otvoriti Sheet ' + Sheet);
-    Result := false;
-  end;
-end;
-
 procedure TFrmExcelReader.posaljiSheetUGrid;
 begin
   zatvoriGrid;
-  GetFieldInfo;
+  ListBox1.Items.AddStrings(Izvjestaj.Fields);
 end;
 
 procedure TFrmExcelReader.spremiIzvjestajInfo;
 begin
 
-  if not napuniIzvjestajRecord(IzvjestajiPodaci) then
+  if not Izvjestaj.napuniIzvjestajRecord(IzvjestajiPodaci) then
   begin
 
     MessageDlg('Greška pregleda izvještaja', mtError, [mbOk], 0);
