@@ -5,7 +5,8 @@ uses
   untExcelReader in 'untExcelReader.pas' {FrmExcelReader},
   untDMMain in 'untDMMain.pas' {DMMain: TDataModule},
   untObjReport in 'untObjReport.pas',
-  untObjReportList in 'untObjReportList.pas';
+  untObjReportList in 'untObjReportList.pas',
+  untObjReportSheet in 'untObjReportSheet.pas';
 
 {$R *.res}
 

@@ -2,7 +2,8 @@ unit untObjReport;
 
 interface
 
-uses Classes;
+uses Classes,
+      untObjReportSheet;
 
 type
   TIzvjestajPodaci = record
@@ -22,6 +23,7 @@ type TObjReport = class (TObject)
     mStatusMessage: String;
     procedure clearSheets;
   public
+    objSheet: TSheet;
     constructor Create(ReportPath: String);
     destructor Destroy; override;
     function analyzeExcelReport: Boolean;
@@ -80,6 +82,7 @@ begin
   Sheets.Free;
   Fields.Clear;
   Fields.Free;
+  objSheet.Destroy;
 end;
 
 procedure TObjReport.Close;
@@ -95,7 +98,7 @@ begin
   if Sheets <> nil then clearSheets;
   Sheets := TStringList.Create;
   Fields := TStringList.Create;
-
+  objSheet := TSheet.Create(1, 'Bilanca');
   mStatus := True;
   mStatusMessage := 'Empty Report object created for ' + ReportPath;
 end;
