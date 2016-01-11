@@ -46,7 +46,7 @@ uses untDMMain,
       SysUtils,
       DateUtils,
       TypInfo,   // GetEnumType
-      DB;         // TFieldType;
+      DB;        // TFieldType;
 
 function TObjReport.analyzeExcelReport: Boolean;
 var
@@ -182,6 +182,7 @@ begin
     DMMain.qryExcel.Open;
     Result := DMMain.qryExcel.Active;
 
+    Fields.Clear;
     for i := 0 to DMMain.qryExcel.Fields.Count - 1 do
     begin
       ft := DMMain.qryExcel.Fields[i].DataType;

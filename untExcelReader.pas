@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Grids, DBGrids, ExtCtrls, DB, ADODB, DBClient,
   untObjReport,
-  untObjReportList;
+  untObjReportList, ComCtrls, Menus;
 
 type
   TFrmExcelReader = class(TForm)
@@ -16,12 +16,19 @@ type
     btnZatvori: TButton;
     btnOtvoriExcel: TButton;
     dlgOpenExcel: TOpenDialog;
-    lblExcelDatoteka: TLabel;
     dsExcel: TDataSource;
     cboxExcelSheets: TComboBox;
     btnOtvoriSheet: TButton;
     ListBox1: TListBox;
     btnSpremiIzvjestaj: TButton;
+    sbExcelStatus: TStatusBar;
+    menExcelReader: TMainMenu;
+    menuFile: TMenuItem;
+    miOpenExcelReport: TMenuItem;
+    miCloseReport: TMenuItem;
+    miExit: TMenuItem;
+    N1: TMenuItem;
+    miSaveReportInfo: TMenuItem;
     procedure btnZatvoriClick(Sender: TObject);
     procedure btnOtvoriExcelClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -62,7 +69,7 @@ begin
 
   // ako je izvještaj veæ kreiran create æe ga ponovo rekreirati
   Izvjestaj := TObjReport.Create(dlgOpenExcel.FileName);
-  lblExcelDatoteka.Caption := Izvjestaj.Path;
+  sbExcelStatus.Panels[0].Text := Izvjestaj.Path;
 
   otvoriExcel;
 end;
@@ -81,6 +88,7 @@ end;
 
 procedure TFrmExcelReader.btnZatvoriClick(Sender: TObject);
 begin
+
   Close;
 end;
 
@@ -116,6 +124,8 @@ begin
     end;
   end else
     MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
+
+  sbExcelStatus.Panels[2].Text := Izvjestaj.StatusMessage;
 end;
 
 procedure TFrmExcelReader.otvoriExcelSheet(SheetName: String);
@@ -126,6 +136,8 @@ begin
     MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
     zatvoriGrid;
   end;
+
+  sbExcelStatus.Panels[2].Text := Izvjestaj.StatusMessage;
 end;
 
 procedure TFrmExcelReader.posaljiSheetUGrid;
@@ -164,6 +176,8 @@ begin
                 mtInformation,
                 [mbOk],
                 0);
+
+  sbExcelStatus.Panels[2].Text := Izvjestaj.StatusMessage;
 end;
 
 // Zatvaranje grida prazni grid i list kontrolu sa tipovima polja
