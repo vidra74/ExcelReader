@@ -1,0 +1,114 @@
+	AKTIVA
+001	A)  POTRAŽIVANJA ZA UPISANI A NEUPLAÆENI KAPITAL								
+002	B)  DUGOTRAJNA IMOVINA (003+010+020+029+033)									
+003	I. NEMATERIJALNA IMOVINA (004 do 009)											
+004	1. Izdaci za razvoj															
+005	2. Koncesije, patenti, licencije, robne i uslužne marke, softver i ostala prava								
+006	3. Goodwill																	
+007	4. Predujmovi za nabavu nematerijalne imovine								
+008	5. Nematerijalna imovina u pripremi											
+009	6. Ostala nematerijalna imovina												
+010	II. MATERIJALNA IMOVINA (011 do 019)										
+011	1. Zemljište																
+012	2. Graðevinski objekti														
+013	3. Postrojenja i oprema 													
+014	4. Alati, pogonski inventar i transportna imovina							
+015	5. Biološka imovina															
+016	6. Predujmovi za materijalnu imovinu										
+017	7. Materijalna imovina u pripremi											
+018	8. Ostala materijalna imovina												
+019	9. Ulaganje u nekretnine													
+020	III. DUGOTRAJNA FINANCIJSKA IMOVINA (021 do 028)							
+021	1. Udjeli (dionice) kod povezanih poduzetnika								
+022	2. Dani zajmovi povezanim poduzetnicima										
+023	3. Sudjelujuæi interesi (udjeli)											
+024	4. Zajmovi dani poduzetnicima u kojima postoje sudjelujuæi interesi			
+025	5. Ulaganja u vrijednosne papire											
+026	6. Dani zajmovi, depoziti i slièno											
+027	7. Ostala dugotrajna financijska imovina 									
+028	8.  Ulaganja koja se obraèunavaju metodom udjela							
+029	IV. POTRAŽIVANJA (030 do 032)												
+030	1. Potraživanja od povezanih poduzetnika									
+031	2. Potraživanja po osnovi prodaje na kredit									
+032	3. Ostala potraživanja														
+033	V. ODGOÐENA POREZNA IMOVINA													
+034	C)  KRATKOTRAJNA IMOVINA (035+043+050+058)									
+035	I. ZALIHE (036 do 042)														
+036	1. Sirovine i materijal														
+037	2. Proizvodnja u tijeku														
+038	3. Gotovi proizvodi															
+039	4. Trgovaèka roba															
+040	5. Predujmovi za zalihe														
+041	6. Dugotrajna imovina namijenjena prodaji									
+042	7. Biološka imovina															
+043	II. POTRAŽIVANJA (044 do 049)												
+044	1. Potraživanja od povezanih poduzetnika									
+045	2. Potraživanja od kupaca													
+046	3. Potraživanja od sudjelujuæih poduzetnika 								
+047	4. Potraživanja od zaposlenika i èlanova poduzetnika						
+048	5. Potraživanja od države i drugih institucija								
+049	6. Ostala potraživanja														
+050	III. KRATKOTRAJNA FINANCIJSKA IMOVINA (051 do 057)							
+051	1. Udjeli (dionice) kod povezanih poduzetnika								
+052	2. Dani zajmovi povezanim poduzetnicima										
+053	3. Sudjelujuæi interesi (udjeli) 											
+054	4. Zajmovi dani poduzetnicima u kojima postoje sudjelujuæi interesi			
+055	5. Ulaganja u vrijednosne papire											
+056	6. Dani zajmovi, depoziti i slièno											
+057	7. Ostala financijska imovina 												
+058	IV. NOVAC U BANCI I BLAGAJNI												
+059	D)  PLAÆENI TROŠKOVI BUDUÆEG RAZDOBLJA I OBRAÈUNATI PRIHODI					
+060	E)  UKUPNO AKTIVA (001+002+034+059)											
+061	F)  IZVANBILANÈNI ZAPISI													
+	PASIVA								
+062	A)  KAPITAL I REZERVE (063+064+065+071+072+075+078)							
+063	I. TEMELJNI (UPISANI) KAPITAL												
+064	II. KAPITALNE REZERVE														
+065	III. REZERVE IZ DOBITI (066+067-068+069+070)								
+066	1. Zakonske rezerve															
+067	2. Rezerve za vlastite dionice												
+068	3. Vlastite dionice i udjeli (odbitna stavka)								
+069	4. Statutarne rezerve														
+070	5. Ostale rezerve															
+071	IV. REVALORIZACIJSKE REZERVE												
+072	V. ZADRŽANA DOBIT ILI PRENESENI GUBITAK (073-074)							
+073	1. Zadržana dobit															
+074	2. Preneseni gubitak														
+075	VI. DOBIT ILI GUBITAK POSLOVNE GODINE (076-077)								
+076	1. Dobit poslovne godine													
+077	2. Gubitak poslovne godine													
+078	VII. MANJINSKI INTERES														
+079	B)  REZERVIRANJA (080 do 082)												
+080	1. Rezerviranja za mirovine, otpremnine i sliène obveze						
+081	2. Rezerviranja za porezne obveze											
+082	3. Druga rezerviranja														
+083	C)  DUGOROÈNE OBVEZE (084 do 092)											
+084	1. Obveze prema povezanim poduzetnicima										
+085	2. Obveze za zajmove, depozite i slièno										
+086	3. Obveze prema bankama i drugim financijskim institucijama					
+087	4. Obveze za predujmove														
+088	5. Obveze prema dobavljaèima												
+089	6. Obveze po vrijednosnim papirima											
+090	7. Obveze prema poduzetnicima u kojima postoje sudjelujuæi interesi			
+091	8. Ostale dugoroène obveze													
+092	9. Odgoðena porezna obveza													
+093	D)  KRATKOROÈNE OBVEZE (094 do 105)											
+094	1. Obveze prema povezanim poduzetnicima										
+095	2. Obveze za zajmove, depozite i slièno										
+096	3. Obveze prema bankama i drugim financijskim institucijama					
+097	4. Obveze za predujmove														
+098	5. Obveze prema dobavljaèima												
+099	6. Obveze po vrijednosnim papirima											
+100	7. Obveze prema poduzetnicima u kojima postoje sudjelujuæi interesi			
+101	8. Obveze prema zaposlenicima												
+102	9. Obveze za poreze, doprinose i slièna davanja								
+103	10. Obveze s osnove udjela u rezultatu										
+104	11. Obveze po osnovi dugotrajne imovine namijenjene prodaji					
+105	12. Ostale kratkoroène obveze												
+106	E) ODGOÐENO PLAÆANJE TROŠKOVA I PRIHOD BUDUÆEGA RAZDOBLJA					
+107	F) UKUPNO – PASIVA (062+079+083+093+106)									
+108	G)  IZVANBILANÈNI ZAPISI													
+	DODATAK BILANCI (popunjava poduzetnik koji sastavlja konsolidirani godišnji financijski izvještaj)								
+	A) KAPITAL I REZERVE								
+109	1. Pripisano imateljima kapitala matice								
+110	2. Pripisano manjinskom interesu								

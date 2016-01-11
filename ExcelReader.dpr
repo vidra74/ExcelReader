@@ -6,7 +6,8 @@ uses
   untDMMain in 'untDMMain.pas' {DMMain: TDataModule},
   untObjReport in 'untObjReport.pas',
   untObjReportList in 'untObjReportList.pas',
-  untObjReportSheet in 'untObjReportSheet.pas';
+  untObjReportSheet in 'untObjReportSheet.pas',
+  untObjBilancaList in 'untObjBilancaList.pas';
 
 {$R *.res}
 

@@ -54,4 +54,34 @@ object DMMain: TDMMain
     Left = 148
     Top = 16
   end
+  object cdsBilanca: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 32
+    Top = 128
+    object cdsBilancaID_REPORT: TIntegerField
+      FieldName = 'ID_REPORT'
+    end
+    object cdsBilancaID_SHEET: TIntegerField
+      FieldName = 'ID_SHEET'
+    end
+    object cdsBilancaAOP: TIntegerField
+      FieldName = 'AOP'
+    end
+    object cdsBilancaPRET_TROM: TCurrencyField
+      FieldName = 'PRET_TROM'
+    end
+    object cdsBilancaPRET_TOT: TCurrencyField
+      FieldName = 'PRET_TOT'
+    end
+    object cdsBilancaTREN_TROM: TCurrencyField
+      FieldName = 'TREN_TROM'
+    end
+    object cdsBilancaTREN_TOT: TCurrencyField
+      FieldName = 'TREN_TOT'
+    end
+    object cdsBilancaVRIJEME: TDateTimeField
+      FieldName = 'VRIJEME'
+    end
+  end
 end

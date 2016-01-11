@@ -6,7 +6,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Grids, DBGrids, ExtCtrls, DB, ADODB, DBClient,
   untObjReport,
-  untObjReportList, ComCtrls, Menus;
+  untObjReportList,
+  untObjReportSheet,
+  ComCtrls, Menus;
 
 type
   TFrmExcelReader = class(TForm)
@@ -39,6 +41,7 @@ type
     { Private declarations }
     Izvjestaj: TObjReport;
     ListaIzvjestaja: TObjReportList;
+    objSheet: TSheet;
     procedure posaljiSheetUGrid;
     procedure zatvoriGrid;
 
@@ -69,6 +72,7 @@ begin
 
   // ako je izvještaj veæ kreiran create æe ga ponovo rekreirati
   Izvjestaj := TObjReport.Create(dlgOpenExcel.FileName);
+  objSheet := TSheet.Create(1, 'Bilanca');
   sbExcelStatus.Panels[0].Text := Izvjestaj.Path;
 
   otvoriExcel;
@@ -94,16 +98,21 @@ end;
 
 procedure TFrmExcelReader.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+
   Izvjestaj.Close;
   ListaIzvjestaja.Close;
   FreeAndNil(Izvjestaj);
   FreeAndNil(ListaIzvjestaja);
+  objSheet.Destroy;
 end;
 
 procedure TFrmExcelReader.FormShow(Sender: TObject);
 begin
   ListaIzvjestaja := TObjReportList.Create(ExtractFilePath(Application.ExeName));
   ListaIzvjestaja.Open;
+
+  Izvjestaj := TObjReport.Create('');
+  objSheet := TSheet.Create(1, 'Bilanca');
 end;
 
 procedure TFrmExcelReader.otvoriExcel;
@@ -130,10 +139,16 @@ end;
 
 procedure TFrmExcelReader.otvoriExcelSheet(SheetName: String);
 begin
-  if Izvjestaj.otvoriOdabraniSheet(SheetName) then
+  if not Izvjestaj.Status then
+  begin
+    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
+    Exit;
+  end;
+  objSheet := TSheet.Create(IzvjestajiPodaci.ID, 'Bilanca');
+  if objSheet.readSelectedSheet(SheetName, ExtractFilePath(Application.ExeName)) then
     posaljiSheetUGrid
   else begin
-    MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);
+    MessageDlg(objSheet.StatusMessage, mtError, [mbOk], 0);
     zatvoriGrid;
   end;
 
@@ -144,7 +159,7 @@ procedure TFrmExcelReader.posaljiSheetUGrid;
 begin
   zatvoriGrid;
   ListBox1.Items.Clear;
-  ListBox1.Items.AddStrings(Izvjestaj.Fields);
+  ListBox1.Items.AddStrings(objSheet.Fields);
 end;
 
 procedure TFrmExcelReader.spremiIzvjestajInfo;

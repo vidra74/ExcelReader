@@ -18,22 +18,21 @@ type TObjReport = class (TObject)
   private
     mPath: String;
     mSheetList: TStringList;
-    mFieldList: TStringList;
+
     mStatus: Boolean;
     mStatusMessage: String;
     procedure clearSheets;
   public
-    objSheet: TSheet;
+
     constructor Create(ReportPath: String);
     destructor Destroy; override;
     function analyzeExcelReport: Boolean;
     function napuniIzvjestajRecord(var Slog: TIzvjestajPodaci): Boolean;
-    function otvoriOdabraniSheet(Sheet: String): Boolean;
     function Open: Boolean;
     procedure Close;
     property Path: String read mPath;
     property Sheets: TStringList read mSheetList write mSheetList;
-    property Fields: TStringList read mFieldList write mFieldList;
+
     property Status: Boolean read mStatus;
     property StatusMessage: String read mStatusMessage;
 end;
@@ -44,9 +43,7 @@ implementation
 
 uses untDMMain,
       SysUtils,
-      DateUtils,
-      TypInfo,   // GetEnumType
-      DB;        // TFieldType;
+      DateUtils;
 
 function TObjReport.analyzeExcelReport: Boolean;
 var
@@ -80,9 +77,6 @@ procedure TObjReport.clearSheets;
 begin
   Sheets.Clear;
   Sheets.Free;
-  Fields.Clear;
-  Fields.Free;
-  objSheet.Destroy;
 end;
 
 procedure TObjReport.Close;
@@ -97,9 +91,8 @@ begin
   mPath := ReportPath;
   if Sheets <> nil then clearSheets;
   Sheets := TStringList.Create;
-  Fields := TStringList.Create;
-  objSheet := TSheet.Create(1, 'Bilanca');
-  mStatus := True;
+
+  mStatus := False;
   mStatusMessage := 'Empty Report object created for ' + ReportPath;
 end;
 
@@ -165,35 +158,6 @@ begin
       mStatusMessage := 'Otvaranje Excel datoteke: ' + E.Message;
       Result := false;
     end;
-  end;
-end;
-
-function TObjReport.otvoriOdabraniSheet(Sheet: String): Boolean;
-var
-  i      : integer;
-  ft     : TFieldType;
-  sft    : string;
-  fname  : string;
-begin
-
-  DMMain.qryExcel.Close;
-  DMMain.qryExcel.SQL.Text :=  'select * from [' + Sheet + ']';
-  try
-    DMMain.qryExcel.Open;
-    Result := DMMain.qryExcel.Active;
-
-    Fields.Clear;
-    for i := 0 to DMMain.qryExcel.Fields.Count - 1 do
-    begin
-      ft := DMMain.qryExcel.Fields[i].DataType;
-      sft := GetEnumName(TypeInfo(TFieldType), Integer(ft));
-      fname:= DMMain.qryExcel.Fields[i].FieldName;
-
-      Fields.Add(Format('%d) NAME: %s TYPE: %s', [1+i, fname, sft]));
-    end;
-  except
-    mStatusMessage := 'Ne mogu otvoriti Sheet ' + Sheet;
-    Result := false;
   end;
 end;
 

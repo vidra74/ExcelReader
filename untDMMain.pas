@@ -17,6 +17,15 @@ type
     cdsPregledIzvjestajaDATUMIZVJESTAJA: TDateField;
     qryIzvjestajPodaci: TADOQuery;
     qryExcel: TADOQuery;
+    cdsBilanca: TClientDataSet;
+    cdsBilancaID_REPORT: TIntegerField;
+    cdsBilancaID_SHEET: TIntegerField;
+    cdsBilancaAOP: TIntegerField;
+    cdsBilancaPRET_TROM: TCurrencyField;
+    cdsBilancaPRET_TOT: TCurrencyField;
+    cdsBilancaTREN_TROM: TCurrencyField;
+    cdsBilancaTREN_TOT: TCurrencyField;
+    cdsBilancaVRIJEME: TDateTimeField;
     procedure DataModuleDestroy(Sender: TObject);
   private
     { Private declarations }
