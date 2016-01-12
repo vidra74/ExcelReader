@@ -25,17 +25,21 @@ type
       mStatusMessage: String;
       mStatus: Boolean;
       mFieldList: TStringList;
+      mIznosList: array of TSheetIznosi;
+      mCount: Integer;
     public
 
       constructor Create(IDIzvjestaj: Integer; Sheet: String);
       destructor Destroy; override;
       function readSelectedSheet(Name, Path: String): Boolean;
+      function showSelectedRecord(ID:Integer):TSheetIznosi;
       property ID_Report: Integer read mID_Report;
       property ID_Sheet: Integer read mID_Sheet;
       property SheetName: String read mSheetName;
       property Status: Boolean read mStatus;
       property StatusMessage: String read mStatusMessage;
       property Fields: TStringList read mFieldList write mFieldList;
+      property Count: Integer read mCount;
   end;
 
 implementation
@@ -57,6 +61,10 @@ begin
   mSheetName := Sheet;
 
   Fields := TStringList.Create;
+  SetLength(mIznosList, 20);
+
+  mCount := 0;
+
 end;
 
 destructor TSheet.Destroy;
@@ -119,7 +127,7 @@ begin
 
       DBSet := TObjBilancaList.Create(Path);
       DBSet.Open;
-
+      mCount := 0;
       while not DMMain.qryExcel.EOF do
       begin
         if (Trim(DMMain.qryExcel.FieldByName('BILANCA').AsString) <> '') then
@@ -132,6 +140,11 @@ begin
             Slog.Tren_Kumulativ := DMMain.qryExcel.FieldByName('F11').AsCurrency;
 
             DBSet.AddNewAmmount(Slog);
+            if Length(mIznosList) = Count then
+              SetLength(mIznosList, Count + 40);
+
+            mIznosList[mCount] := Slog;
+            Inc(mCount);
           end;
 
         DMMain.qryExcel.Next;
@@ -143,6 +156,11 @@ begin
   finally
     ;
   end;
+end;
+
+function TSheet.showSelectedRecord(ID:Integer):TSheetIznosi;
+begin
+  Result := mIznosList[ID];
 end;
 
 end.

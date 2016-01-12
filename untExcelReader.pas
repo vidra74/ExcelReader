@@ -31,12 +31,15 @@ type
     miExit: TMenuItem;
     N1: TMenuItem;
     miSaveReportInfo: TMenuItem;
+    btnShowRecord: TButton;
+    tbRecord: TTrackBar;
     procedure btnZatvoriClick(Sender: TObject);
     procedure btnOtvoriExcelClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnOtvoriSheetClick(Sender: TObject);
     procedure btnSpremiIzvjestajClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure btnShowRecordClick(Sender: TObject);
   private
     { Private declarations }
     Izvjestaj: TObjReport;
@@ -82,6 +85,22 @@ procedure TFrmExcelReader.btnOtvoriSheetClick(Sender: TObject);
 begin
 
   otvoriExcelSheet(cboxExcelSheets.Items[cboxExcelSheets.ItemIndex]);
+  tbRecord.Max := objSheet.Count;
+end;
+
+procedure TFrmExcelReader.btnShowRecordClick(Sender: TObject);
+var
+  strSlog: String;
+  Slog: TSheetIznosi;
+begin
+
+  Slog := objSheet.showSelectedRecord(tbRecord.Position);
+  strSlog := 'ID : ' + IntToStr(tbRecord.Position) + #13 + #10 +
+              'AOP : ' + IntToStr(Slog.AOP) + #13 + #10 +
+              'Prethodno : ' + CurrToStr(Slog.Pret_Kumulativ) + #13 + #10 +
+              'Trenutno : ' + CurrToStr(Slog.Tren_Kumulativ);
+  ShowMessage(strSlog);
+
 end;
 
 procedure TFrmExcelReader.btnSpremiIzvjestajClick(Sender: TObject);
@@ -126,7 +145,7 @@ begin
 
       cboxExcelSheets.Items.AddStrings(Izvjestaj.Sheets);
       cboxExcelSheets.ItemIndex := 0;
-      otvoriExcelSheet(cboxExcelSheets.Items[0]);
+      tbRecord.Max := objSheet.Count;
     end else begin
 
       MessageDlg(Izvjestaj.StatusMessage, mtError, [mbOk], 0);

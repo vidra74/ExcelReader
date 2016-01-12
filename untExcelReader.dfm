@@ -90,6 +90,23 @@ object FrmExcelReader: TFrmExcelReader
       TabOrder = 3
       OnClick = btnSpremiIzvjestajClick
     end
+    object btnShowRecord: TButton
+      Left = 10
+      Top = 99
+      Width = 100
+      Height = 25
+      Caption = 'Prika'#382'i slog'
+      TabOrder = 4
+      OnClick = btnShowRecordClick
+    end
+    object tbRecord: TTrackBar
+      Left = 10
+      Top = 130
+      Width = 100
+      Height = 45
+      Max = 100
+      TabOrder = 5
+    end
   end
   object ListBox1: TListBox
     Left = 0
